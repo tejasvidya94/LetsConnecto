@@ -5,11 +5,14 @@ const userSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            trim: true,
+            lowercase: true,
         },
-        userName: {
+        fullName: {
             type: String,
             required: true,
+            trim: true,
 
         },
         password: {
@@ -20,7 +23,11 @@ const userSchema = new mongoose.Schema(
         profilePic: {
             type: String,
             default: ""
-        }
+        },
+        profilePicPublicId: {
+            type: String,
+            default: "",
+        },
     },
     { timestamps: true }
 );

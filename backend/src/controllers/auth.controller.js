@@ -1,13 +1,13 @@
 import { generateToken } from '../lib/utils.js';
 import User from '../models/user.model.js'
 import bcrypt from "bcrypt"
-import cloudinary from "../lib/cloudinar.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
-    const { email, userName, password } = req.body;
+    const { email, fullName, password } = req.body;
     try {
 
-        if (!userName || !email || !password) {
+        if (!fullName || !email || !password) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -24,7 +24,7 @@ export const signup = async (req, res) => {
         const newUser = new User({
             email,
             password: hashedPassword,
-            userName
+            fullName
         });
 
         if (newUser) {
@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
             generateToken(newUser._id, res);
             res.status(201).json({
                 _id: newUser._id,
-                name: newUser.userName,
+                fullName: newUser.fullName,
                 email: newUser.email,
                 profilePic: newUser.profilePic,
             });
@@ -67,7 +67,7 @@ export const login = async (req, res) => {
 
         res.status(200).json({
             _id: user._id,
-            name: user.userName,
+            fullName: user.fullName,
             email: user.email,
             profilePic: user.profilePic
         });
@@ -88,27 +88,47 @@ export const logout = (req, res) => {
     }
 }
 
-
-export const updateProfile = async (req, res) => {
+// signatured image upload 
+export const generateSignature = async (req, res) => {
     try {
-        const { profilePic } = req.body;
-        if (!req.user || !req.user._id) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-        const userId = req.user._id;
-        if (!profilePic) {
-            return res.status(400).json({ message: "Profile pic is required." });
-        }
+        const timestamp = Math.round(new Date().getTime() / 1000);
+        const signature = cloudinary.utils.api_sign_request(
+            {
+                timestamp,
+                folder: "profile_images",
+            },
+            process.env.CLOUDINARY_API_SECRET
+        );
 
-        const uploadResponse = await cloudinary.uploader.upload(profilePic);
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { profilePic: uploadResponse.secure_url },
-            { new: true });
-        return res.status(200).json(updatedUser);
+        res.status(200).json({
+            timestamp,
+            signature,
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+            apiKey: process.env.CLOUDINARY_API_KEY,
+            folder: "profile_images",
+        });
     } catch (error) {
-        console.log("error in update profile controller", error);
-        res.status(500).json({ message: "Internal Server Error." });
+        console.log("error in generate signature", error);
+        res.status(500).json({ message: "Signature generation failed" });
+
+    }
+};
+
+export const updateProfilePic = async (req, res) => {
+    try {
+        const { imageUrl, publicId } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                profilePic: imageUrl,
+                profilePicPublicId: publicId,
+            },
+            { new: true },
+        );
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log("error in updateProfile controller: ", error);
+        res.status(500).json({ message: "Profile Update Failed." });
 
     }
 }
@@ -122,3 +142,4 @@ export const checkAuth = async (req, res) => {
     }
 
 }
+
