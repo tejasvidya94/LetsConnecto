@@ -3,7 +3,8 @@ import React, { useRef, useState } from 'react';
 import { Camera, Mail, User, CalendarDays, ShieldCheck } from 'lucide-react';
 
 import { useAuthStore } from '../store/useAuthStore';
-import logo from "../../public/noAvatar.png"
+import logo from "../assets/noAvatar.png"
+
 
 const ProfilePage = () => {
     const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -20,6 +21,8 @@ const ProfilePage = () => {
             const file = e.target.files[0];
 
             if (!file) return;
+            console.log(file.type);
+
 
             // VALIDATE IMAGE TYPE
             if (!file.type.startsWith("image/")) {
@@ -34,6 +37,7 @@ const ProfilePage = () => {
             }
             // PREVIEW IMAGE
             const previewUrl = URL.createObjectURL(file);
+            console.log(previewUrl);
 
             setSelectedImg(previewUrl);
 
