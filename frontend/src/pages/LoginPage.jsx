@@ -378,7 +378,7 @@ const LoginPage = () => {
                             mb-6 inline-flex
                             h-24 w-24
                             items-center justify-center
-                            rounded-[2rem]
+                            rounded-4xl
                             bg-primary/10
                             border border-primary/20
                         "
