@@ -9,12 +9,14 @@ export const useAuthStore = create((set) => ({
     isLoggingIn: false,
     isUpdatingProfile: false,
     isCheckingAuth: true,
+    onlineUsers: [],
     checkAuth: async () => {
         try {
-            const res = await axiosInstance.get("/auth/check");
+            const res = await axiosInstance.get("/auth/check-user");
             set({ authUser: res.data });
         } catch (error) {
-            console.log("Error in chekAuth: ", error.response.data.message);
+            console.log("Error in chekAuth: ", error);
+            toast.error("Error while checking auth");
             set({ authUser: null });
         } finally {
             set({ isCheckingAuth: false });
@@ -28,7 +30,8 @@ export const useAuthStore = create((set) => ({
             set({ authUser: res.data });
             toast.success("User singup successfully.");
         } catch (error) {
-            toast.error("error in signup store", error?.response?.data?.message); // error is axios error object.
+            console.log("Error", error);
+            toast.error("error in signup store"); // error is axios error object.
         }
         finally {
             set({ isSigningUp: false });
@@ -41,7 +44,9 @@ export const useAuthStore = create((set) => ({
             set({ authUser: null });
             toast.success("Logged Out Successfully.");
         } catch (error) {
-            toast.error(error.response.data.message);
+            console.log("Error:", error);
+
+            toast.error("Error while logout");
         }
     },
 
@@ -53,7 +58,8 @@ export const useAuthStore = create((set) => ({
             toast.success("LoggedIn successfully.")
             console.log(res.data);
         } catch (error) {
-            toast.error("error in useAuthStore: login", error.response.data.message);
+            console.log("Error:", error);
+            toast.error("Incorrect Credentials",);
         } finally {
             set({ isLoggingIn: false });
         }
@@ -105,7 +111,7 @@ export const useAuthStore = create((set) => ({
 
         } catch (error) {
             console.log("error in useAuthStore/updateProfile", error);
-            toast.error("Image upload failed.", error.response.data.message);
+            toast.error("Image upload failed.");
 
         } finally {
             set({ isUpdatingProfile: false });

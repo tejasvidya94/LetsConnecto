@@ -95,7 +95,7 @@ export const generateSignature = async (req, res) => {
         const signature = cloudinary.utils.api_sign_request(
             {
                 timestamp,
-                folder: "profile_images",
+                folder: process.env.FOLDER_TO_UPLOAD_IMAGES,
             },
             process.env.CLOUDINARY_API_SECRET
         );
@@ -105,7 +105,7 @@ export const generateSignature = async (req, res) => {
             signature,
             cloudName: process.env.CLOUDINARY_CLOUD_NAME,
             apiKey: process.env.CLOUDINARY_API_KEY,
-            folder: "profile_images",
+            folder: process.env.FOLDER_TO_UPLOAD_IMAGES,
         });
     } catch (error) {
         console.log("error in generate signature", error);
@@ -123,7 +123,8 @@ export const updateProfilePic = async (req, res) => {
                 profilePic: imageUrl,
                 profilePicPublicId: publicId,
             },
-            { new: true },
+            // { new: true },
+            { returnDocument: "after" },
         );
         res.status(200).json(updatedUser);
     } catch (error) {

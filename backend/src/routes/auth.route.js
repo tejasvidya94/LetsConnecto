@@ -14,7 +14,7 @@ router.get("/generate-signature", generateSignature)
 
 router.put("/update-profile-pic", protectRoute, updateProfilePic);
 
-router.get("/check", protectRoute, checkAuth);
+router.get("/check-user", protectRoute, checkAuth);
 
 
 export default router;

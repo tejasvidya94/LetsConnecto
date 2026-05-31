@@ -20,8 +20,14 @@ export const getMessages = async (req, res) => {
 
         const messages = await Message.find({
             $or: [
-                { senderId: myId, receiveId: userToChatId },
-                { senderId: userToChatId, receiveId: myId }
+                {
+                    senderId: myId,
+                    receiverId: userToChatId
+                },
+                {
+                    senderId: userToChatId,
+                    receiverId: myId
+                }
             ]
         });
 
@@ -34,30 +40,42 @@ export const getMessages = async (req, res) => {
 }
 
 export const sendMessage = async (req, res) => {
+    const senderId = req.user._id;
+    const receiverId = req.params.id;
     try {
-        const { text, image } = req.body;
-        const { id: receiverId } = req.params;
-        const senderId = req.user._id;
+        const {
+            text,
+            imageUrl,
+            imagePublicId
+        } = req.body;
 
-        let imageUrl;
-        if (image) {
-            const uploadResponse = await cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url;
+        const trimmedText = text?.trim();
+
+        if (!trimmedText && !imageUrl) {
+            return res.status(400).json({
+                error: "Message must contain text or image"
+            });
         }
 
-
-        const newMessage = new Message({
+        const message = await Message.create({
             senderId,
             receiverId,
-            text,
-            image: imageUrl,
+            text: trimmedText || "",
+            imageUrl: imageUrl || null,
+            imagePublicId: imagePublicId || null,
         });
 
         // todo: realtime functionality goes here => socket.io
-        return res.status(201).json(newMessage);
+        return res.status(201).json(message);
 
     } catch (error) {
-        console.error("Error in sendMessage controller: ", error);
-        return res.status(500).json({ error: "Internal server error" });
+        console.error(
+            "sendMessage error:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Internal server error"
+        });
     }
-}
+};

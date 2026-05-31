@@ -6,15 +6,22 @@ import LoginPage from './pages/LoginPage.jsx'
 import ForgotPassPage from './pages/ForgotPassPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import { useAuthStore } from './store/useAuthStore.js'
+import { useThemeStore } from './store/useThemeStore.js'
 import { useEffect } from 'react'
 import { Loader } from "lucide-react";
 import { Toaster } from 'react-hot-toast'
+import SettingsPage from './pages/SettingsPage.jsx'
 
 function App() {
+
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+
+  const { theme } = useThemeStore();
+
   useEffect(() => {
     checkAuth()
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isCheckingAuth && !authUser) {
     return (
@@ -27,7 +34,7 @@ function App() {
   return (
     <>
       <Toaster position='top-center' />
-      <div>
+      <div data-theme={theme}>
         <Navbar />
         <Routes>
           <Route path='/' element={authUser ? <HomePage /> : <Navigate to={"/login"} />} />
@@ -39,6 +46,10 @@ function App() {
           <Route path='/forgot-pass' element={<ForgotPassPage />} />
 
           <Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />} />
+
+          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to={"/login"} />} />
+
+
         </Routes>
       </div>
     </>

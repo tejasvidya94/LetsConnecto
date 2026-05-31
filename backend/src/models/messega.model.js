@@ -7,21 +7,33 @@ const messageSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
+            index: true,
         },
         receiverId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
+            index: true,
         },
         text: {
             type: String,
+            trim: true,
+            maxlength: 5000,
         },
-        image: {
+        imageUrl: {
             type: String,
+            default: null,
+        },
+        imagePublicId: {
+            type: String,
+            default: null,
         },
 
+
     },
-    { timestamps: true }
+    {
+        timestamps: true
+    }
 );
 
 const Message = mongoose.model("Message", messageSchema);

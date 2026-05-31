@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import { useAuthStore } from '../store/useAuthStore'
-import { Lock, Mail, MessageSquare, User2, Eye, EyeOff } from 'lucide-react'
+// import { useAuthStore } from '../store/useAuthStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { Lock, Mail, MessageSquare, User2, Eye, EyeOff, Loader } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 const SignupPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -297,9 +299,18 @@ const SignupPage = () => {
                     {/* FOOTER */}
                     <p className="mt-8 text-center text-sm text-base-content/60">
                         Already have an account?{" "}
-                        <span className="text-primary font-medium cursor-pointer hover:underline">
+                        {/* <span className="text-primary font-medium cursor-pointer hover:underline">
                             Sign in
-                        </span>
+                        </span> */}
+                        <Link
+                            to="/login"
+                            className="
+                                font-medium text-primary
+                                hover:underline
+                            "
+                        >
+                            Sign In
+                        </Link>
                     </p>
 
                 </div>
