@@ -5,14 +5,14 @@ import { connectDB } from "./src/lib/db.js";
 import authRoutes from "./src/routes/auth.route.js";
 import messageRoutes from "./src/routes/message.route.js";
 import app from './src/index.js';
-
+import { server } from './src/lib/socket.io.js';
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port:${PORT}`);
     connectDB();
 });

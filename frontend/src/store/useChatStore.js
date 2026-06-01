@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios"
 import toast from 'react-hot-toast'
 import axios from "axios";
+import { useAuthStore } from "./useAuthStore";
 
 
 export const useChatStore = create((set, get) => ({
@@ -121,6 +122,35 @@ export const useChatStore = create((set, get) => ({
         } finally {
             set({ isSendingMessage: false });
         }
+    },
+    subscribeToMessages: () => {
+        const selectedUser = get().selectedUser;
+        if (!selectedUser) return;
+
+        const socket = useAuthStore.getState().socket;
+        if (!socket) {
+            return;
+        }
+
+        // optimize this one later
+        socket.on("newMessageArrived", (newMessage) => {
+            if (selectedUser?._id !== newMessage.senderId) {
+                return;
+            }
+            set((state) => ({
+                messages: [
+                    ...state.messages,
+                    newMessage,
+                ]
+            }));
+        });
+    },
+    unsubscribeFromMessages: () => {
+
+        const socket = useAuthStore.getState().socket;
+
+        // optimize this one later
+        socket.off("newMessageArrived");
     },
 
 

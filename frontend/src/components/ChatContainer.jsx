@@ -6,9 +6,24 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const ChatContainer = () => {
-    const { messages, getMessages, isLoadingMessages, selectedUser, sendMessage, isSendingMessage } = useChatStore();
+    const {
+        messages,
+        getMessages,
+        isLoadingMessages,
+        selectedUser,
+        sendMessage,
+        isSendingMessage, subscribeToMessages, unsubscribeFromMessages
+    } = useChatStore();
     const { authUser } = useAuthStore();
 
+
+    const messageEndRef = useRef(null);
+    useEffect(() => {
+        if (messageEndRef.current && messages)
+            messageEndRef.current.scrollIntoView({
+                behavior: "smooth",
+            });
+    }, [messages]);
 
     const [imagePreview, setImagePreview] = useState(null);
     const [text, setText] = useState("");
@@ -86,8 +101,11 @@ const ChatContainer = () => {
     useEffect(() => {
         if (selectedUser?._id) {
             getMessages(selectedUser._id);
+            subscribeToMessages();
+
+            return () => unsubscribeFromMessages()
         }
-    }, [getMessages, selectedUser._id]);
+    }, [getMessages, selectedUser._id, subscribeToMessages, unsubscribeFromMessages]);
 
 
     if (isLoadingMessages) {
@@ -130,6 +148,7 @@ const ChatContainer = () => {
                     <div
                         key={message._id}
                         className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+                        ref={messageEndRef}
                     >
                         {/* chat avatar */}
                         <div className="chat-image avatar">

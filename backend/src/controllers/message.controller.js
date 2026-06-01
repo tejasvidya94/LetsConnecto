@@ -1,5 +1,6 @@
 import User from "../models/user.model.js"
 import Message from "../models/messega.model.js"
+import { getReceiverSocketId, io } from "../lib/socket.io.js";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -29,7 +30,7 @@ export const getMessages = async (req, res) => {
                     receiverId: myId
                 }
             ]
-        });
+        }).sort({ createdAt: 1 });
 
         return res.status(200).json(messages)
     } catch (error) {
@@ -48,12 +49,18 @@ export const sendMessage = async (req, res) => {
             imageUrl,
             imagePublicId
         } = req.body;
+        if (!text) {
+            return res.status(400).json({
+                error: "message should not be empty."
+            });
+        }
+
 
         const trimmedText = text?.trim();
 
-        if (!trimmedText && !imageUrl) {
+        if (!trimmedText && trimmedText.length > 5000 && !imageUrl) {
             return res.status(400).json({
-                error: "Message must contain text or image"
+                error: "Message must contain text with less that 5000 characters or image"
             });
         }
 
@@ -65,7 +72,13 @@ export const sendMessage = async (req, res) => {
             imagePublicId: imagePublicId || null,
         });
 
-        // todo: realtime functionality goes here => socket.io
+
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            // he is online
+            io.to(receiverSocketId).emit("newMessageArrived", message)
+        }
+
         return res.status(201).json(message);
 
     } catch (error) {
